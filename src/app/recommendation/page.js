@@ -11,14 +11,13 @@ export default function RecommendationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    checkAuthAndLoadRecommendations();
-  }, []);
-
   const checkAuthAndLoadRecommendations = async () => {
     try {
+      setLoading(true);
       // 사용자 정보 확인
-      const authResponse = await fetch('/api/auth/me');
+      const authResponse = await fetch('/api/auth/me', {
+        cache: 'no-store', // 항상 최신 정보를 가져오기 위해 캐시 비활성화
+      });
       if (!authResponse.ok) {
         router.push('/login');
         return;
@@ -28,7 +27,9 @@ export default function RecommendationPage() {
       setUser(authData.user);
 
       // 선호도 기반 추천 가져오기
-      const recResponse = await fetch('/api/recommendations');
+      const recResponse = await fetch('/api/recommendations', {
+        cache: 'no-store', // 선호도 변경 시 최신 추천을 받기 위해 캐시 비활성화
+      });
       if (!recResponse.ok) {
         // 선호도가 없거나 추천이 없으면 전체 제품 표시
         const productsResponse = await fetch('/api/products');
@@ -46,6 +47,31 @@ export default function RecommendationPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    checkAuthAndLoadRecommendations();
+  }, []);
+
+  // 선호도 변경 이벤트 감지
+  useEffect(() => {
+    const handlePreferencesUpdate = () => {
+      // 선호도가 변경되면 추천 다시 로드
+      checkAuthAndLoadRecommendations();
+    };
+
+    window.addEventListener('preferences-updated', handlePreferencesUpdate);
+    
+    // 페이지 포커스 시 최신 선호도로 추천 다시 로드
+    const handleFocus = () => {
+      checkAuthAndLoadRecommendations();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('preferences-updated', handlePreferencesUpdate);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
 
   const typeLabels = {
     whisky: { emoji: '🥃', label: '위스키' },

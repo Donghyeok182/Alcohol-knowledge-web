@@ -48,13 +48,12 @@
         ],
         "category": [
           "whisky",
-          "beer",
-          "wine"
+          "beer"
         ]
       },
       "id": 3,
       "created_at": "2025-11-21T05:08:30.977Z",
-      "updated_at": "2025-11-21T05:08:30.977Z"
+      "updated_at": "2025-11-22T05:08:43.327Z"
     }
   ],
   "products": [

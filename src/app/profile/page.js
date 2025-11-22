@@ -120,11 +120,22 @@ export default function ProfilePage() {
         return;
       }
 
-      setSuccess('정보가 성공적으로 수정되었습니다.');
+      const hasPreferencesChanged = JSON.stringify(data.user.preferences) !== JSON.stringify(user?.preferences);
+      
+      setSuccess(
+        hasPreferencesChanged 
+          ? '정보가 성공적으로 수정되었습니다. 선호도가 변경되어 추천이 업데이트됩니다.' 
+          : '정보가 성공적으로 수정되었습니다.'
+      );
       setFormData(prev => ({ ...prev, currentPassword: '', password: '', confirmPassword: '' }));
       
       // Navigation 업데이트를 위해 이벤트 발생
       window.dispatchEvent(new CustomEvent('auth-change', { detail: { user: data.user } }));
+      
+      // 선호도 변경 이벤트 발생 (추천 페이지가 자동으로 새로고침되도록)
+      if (hasPreferencesChanged) {
+        window.dispatchEvent(new CustomEvent('preferences-updated', { detail: { preferences: data.user.preferences } }));
+      }
       
       // 사용자 정보 업데이트
       setUser(data.user);

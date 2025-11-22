@@ -96,8 +96,8 @@ export async function PUT(request) {
       updates.password = bcrypt.hashSync(body.password, 10);
     }
 
-    // 선호도 수정
-    if (body.preferences) {
+    // 선호도 수정 (빈 객체나 null도 허용)
+    if (body.preferences !== undefined) {
       updates.preferences = body.preferences;
     }
 
